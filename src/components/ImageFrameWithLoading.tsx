@@ -44,6 +44,7 @@ export type ImageSpec = ImageSpecUrl | ImageSpecLossMap;
 export interface ImageFrameWithLoadingProps {
   imageSpec: ImageSpec;
   viewTransform: number;
+  clearColor: number[];
   exposure: number;
   gamma: number;
   offset: number;
@@ -103,6 +104,7 @@ export default class ImageFrameWithLoading extends
       {this.state.image != null ?
         <ImageFrame
           viewTransform={this.props.viewTransform}
+          clearColor={this.props.clearColor}
           exposure={this.props.exposure}
           gamma={this.props.gamma}
           offset={this.props.offset}
@@ -112,8 +114,8 @@ export default class ImageFrameWithLoading extends
           enableMouseEvents={this.props.enableMouseEvents}
         />
         : null}
-        {this.state.isLoading ? <LoadingOverlay>Downloading ...</LoadingOverlay> : null}
-        {this.state.errorMsg ? <LoadingOverlay>{this.state.errorMsg}</LoadingOverlay> : null}
+        {this.state.isLoading ? <LoadingOverlay className="jeri-overlay">Downloading ...</LoadingOverlay> : null}
+        {this.state.errorMsg ? <LoadingOverlay className="jeri-overlay">{this.state.errorMsg}</LoadingOverlay> : null}
       </StretchingDiv>
     );
   }

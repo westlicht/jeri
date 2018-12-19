@@ -31,6 +31,7 @@ export function renderViewer(
             baseUrl={baseUrl}
             sortMenu={false}
             removeCommonPrefix={false}
+            clearColor={[]}
         />
     );
     return ReactDOM.render(component, elem);

@@ -64,6 +64,7 @@ export interface ImageViewerProps {
   baseUrl: string;             /** Prefix for all images */
   sortMenu: boolean;           /** Whether to sort the menu-items automatically */
   removeCommonPrefix: boolean; /** Should common prefices of menu names be shortened. */
+  clearColor: number[];        /** Color of the background */
 }
 
 // A little hack to allow detecting shift click
@@ -154,7 +155,7 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
     const rows = this.activeRows(this.menuData, this.state.selection);
     const imageSpec = this.imageSpec();
     return (
-      <MainDiv ref={(div: HTMLDivElement) => this.mainContainer = div}>
+      <MainDiv ref={(div: HTMLDivElement) => this.mainContainer = div} className="jeri-main">
         <div>
         {rows.map((row, i)  => (
           <NavRow
@@ -167,9 +168,10 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
           />
         ))}
         </div>
-        <ImageArea>
+        <ImageArea className="jeri-image-area">
           <ImageFrameWithLoading
             viewTransform={this.state.viewTransform[imageSpec.tonemapGroup]}
+            clearColor={this.props.clearColor}
             exposure={this.state.exposure[imageSpec.tonemapGroup] || 1.0}
             gamma={1.0}
             offset={0.0}

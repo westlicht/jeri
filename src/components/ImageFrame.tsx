@@ -24,6 +24,7 @@ const StretchingDiv = styled.div`
 export interface ImageFrameProps {
     image: ImageInput;
     viewTransform: number;
+    clearColor: number[];
     exposure: number;
     gamma: number;
     offset: number;
@@ -61,6 +62,10 @@ export default class ImageFrame extends React.Component<ImageFrameProps, {}> {
     this.imageLayer = new ImageLayer(this.imageLayerElement, this.props.image);
     this.textLayer = new TextLayer(this.textLayerElement, this.props.image);
     this.mouseLayer = new MouseLayer(this.mouseLayerElement, this.props.image, this.props.enableMouseEvents);
+
+    if (this.props.clearColor) {
+      this.imageLayer.setClearColor(this.props.clearColor);
+    }
 
     this.mouseLayer.onTransformationChange(this.handleTransformationChange);
 

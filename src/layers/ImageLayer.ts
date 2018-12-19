@@ -289,6 +289,16 @@ export default class ImageLayer extends Layer {
     this.invalidate();
   }
 
+  setClearColor(color: number[]) {
+    if (this.gl){ 
+      if (color.length === 3) {
+        this.gl.clearColor(color[0], color[1], color[2], 1.0);
+      } else if (color.length === 1) {
+        this.gl.clearColor(color[0], color[0], color[0], 1.0);
+      }
+    }
+  }
+
   /**
    * Force a new draw the next frame
    */

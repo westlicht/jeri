@@ -35,7 +35,7 @@ const HelpScreenDiv = styled.div`
 
 export default () => {
   return (
-    <HelpScreenDiv>
+    <HelpScreenDiv className="jeri-help">
       <h1>Shortcuts</h1>
       <table>
         <tbody>
