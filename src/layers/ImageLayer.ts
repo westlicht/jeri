@@ -1,5 +1,4 @@
 import { Matrix4x4 } from '../utils/linalg';
-import cachedFunction from '../utils/cached-function';
 import { Image } from '../utils/image-loading';
 import Layer, { Input, LossFunction } from './Layer';
 
@@ -240,8 +239,6 @@ export interface TonemappingSettings {
 }
 const defaultTonemapping: TonemappingSettings = { viewTransform: 0.0, exposure: 1.0, gamma: 1.0, offset: 0.0 };
 
-export type TextureCache = (image: Image) => WebGLTexture;
-
 /**
  * Image Layer
  */
@@ -249,25 +246,25 @@ export default class ImageLayer extends Layer {
   private tonemappingSettings: TonemappingSettings = defaultTonemapping;
 
   private needsRerender: boolean = true;
-  private getTexture: TextureCache;
 
   private gl: WebGLRenderingContext;
   private glAttributes: WebGlAttributes;
   private glUniforms: WebGlUniforms;
   private quadVertexBuffer: WebGLBuffer;
   private cmapTexture: WebGLTexture;
+  private textures: Map<string, WebGLTexture>;
 
   constructor(canvas: HTMLCanvasElement, image: Input) {
     super(canvas, image);
 
+    this.textures = new Map();
+
     // Make sure 'this' is available even when these methods are passed as a callback
     this.checkRender = this.checkRender.bind(this);
     this.invalidate  = this.invalidate.bind(this);
+    this.getTexture = this.getTexture.bind(this);
 
     this.initWebGl(canvas);
-
-    // Create a texture cache and load the image texture
-    this.getTexture = cachedFunction(this.createTexture.bind(this));
 
     // Draw for the first time
     this.needsRerender = true;
@@ -551,6 +548,15 @@ export default class ImageLayer extends Layer {
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+    return texture;
+  }
+
+  private getTexture(image: Image) {
+    let texture = this.textures.get(image.url);
+    if (!texture) {
+      texture = this.createTexture(image);
+      this.textures.set(image.url, texture);
+    }
     return texture;
   }
 }
