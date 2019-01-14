@@ -32,6 +32,7 @@ export function renderViewer(
             sortMenu={false}
             removeCommonPrefix={false}
             clearColor={[]}
+            framerates={[]}
         />
     );
     return ReactDOM.render(component, elem);

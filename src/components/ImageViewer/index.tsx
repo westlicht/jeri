@@ -37,7 +37,7 @@ export type InputLeaf = InputLeafImage | InputLeafLossMap;
 
 export interface InputLeafImage {
   title: string;
-  image: string;
+  image: string | string[];
 }
 export interface InputLeafLossMap {
   title: string;
@@ -57,6 +57,9 @@ export interface ImageViewerState {
   defaultTransformation: Matrix4x4;
   transformationNeedsUpdate: boolean;
   hasFocus: boolean; /** The viewer has 'focus', i.e. the user clicked on it */
+  isPlaying: boolean;
+  playbackPosition: number;
+  framerateIndex: number;
 }
 
 export interface ImageViewerProps {
@@ -65,6 +68,7 @@ export interface ImageViewerProps {
   sortMenu: boolean;           /** Whether to sort the menu-items automatically */
   removeCommonPrefix: boolean; /** Should common prefices of menu names be shortened. */
   clearColor: number[];        /** Color of the background */
+  framerates: number[];
 }
 
 // A little hack to allow detecting shift click
@@ -86,6 +90,7 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
     baseUrl: '',
     sortMenu: false,
     removeCommonPrefix: false,
+    framerates: [1,2,5,10,15,24,30,48,60,90,120],
   };
 
   /** A sorted version of props.data, cached for efficiency and recomputed when props change */
@@ -111,6 +116,9 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
       defaultTransformation: Matrix4x4.create(),
       transformationNeedsUpdate: true,
       hasFocus: false,
+      isPlaying: false,
+      playbackPosition: 0,
+      framerateIndex: 6,
     };
     // Make sure 'this' is available in the keyboard handler when assigned to the keyup event
     this.keyboardHandler = this.keyboardHandler.bind(this);
@@ -256,6 +264,18 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
   }
 
   /**
+   * Return a string from an array of strings at a given position. 
+   * If the first argument is a string (not an array), then it will return the string.
+   */
+  private getStringAtPos(input: string | string[], position: number): string {
+    if (Array.isArray(input)) {
+      return this.props.baseUrl + input[position % input.length];
+    } else {
+      return this.props.baseUrl + input;
+    }
+  }
+
+  /**
    * Specification for the current image to load
    */
   private imageSpec(currentSelection: string[] = this.state.selection): ImageSpec {
@@ -265,14 +285,14 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
       return {
         type: 'Difference',
         lossFunction: lossFunctionFromString(config.lossMap.function),
-        urlA: this.props.baseUrl + config.lossMap.imageA,
-        urlB: this.props.baseUrl + config.lossMap.imageB,
+        urlA: this.getStringAtPos(config.lossMap.imageA, this.state.playbackPosition),
+        urlB: this.getStringAtPos(config.lossMap.imageB, this.state.playbackPosition),
         tonemapGroup: (config as any).tonemapGroup || 'default', // tslint:disable-line
       };
     } else {
       return {
         type: 'Url',
-        url: this.props.baseUrl + (img as InputLeafImage).image,
+        url: this.getStringAtPos((img as InputLeafImage).image, this.state.playbackPosition),
         tonemapGroup: (img as any).tonemapGroup || 'default', // tslint:disable-line
       };
     }
@@ -348,6 +368,19 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
     if (this.imageFrame != null) {
       const transformation = this.imageFrame.getTransformation();
       console.log(transformation.data);
+    }
+  }
+
+  private advanceAnimationFrame(currentPos : number): void {
+    if (this.state.isPlaying) {
+      const pos = this.state.playbackPosition;
+      // This condition prevents multiple timers advancing the position
+      if (currentPos === pos) {
+        const delay = 1.0 / this.props.framerates[this.state.framerateIndex] * 1000;
+        const advanceF = this.advanceAnimationFrame.bind(this);
+        setTimeout(advanceF, delay, pos+1);
+        this.setState({playbackPosition : pos+1});
+      }
     }
   }
 
@@ -445,6 +478,38 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
 
     // Dump the current transformation
     actions.d = () => this.dumpTransformation();
+
+    actions[' '] = () => {
+      const isPlaying = !this.state.isPlaying;
+      this.setState({isPlaying : isPlaying});
+      this.advanceAnimationFrame(this.state.playbackPosition);
+    }
+
+    actions['<'] = () => {
+      const newIndex = this.state.framerateIndex-1 > 0 ?
+                        this.state.framerateIndex-1 : 0;
+      console.log('Framerate:', this.props.framerates[newIndex]);
+      this.setState({framerateIndex: newIndex});
+    }
+    actions['>'] = () => {
+      const newIndex = this.state.framerateIndex+1 < this.props.framerates.length ?
+                        this.state.framerateIndex+1 : this.state.framerateIndex;
+      console.log('Framerate:', this.props.framerates[newIndex]);
+      this.setState({framerateIndex: newIndex});
+    }
+
+    actions[','] = () => {
+      this.setState({
+        isPlaying : false,
+        playbackPosition : this.state.playbackPosition - 1
+      });
+    }
+    actions['.'] = () => {
+      this.setState({
+        isPlaying : false,
+        playbackPosition : this.state.playbackPosition + 1
+      });
+    }
 
     if (actions.hasOwnProperty(key) && !event.metaKey && !event.altKey && !event.ctrlKey) {
       event.preventDefault();

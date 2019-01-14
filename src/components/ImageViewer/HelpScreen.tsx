@@ -75,6 +75,14 @@ export default () => {
             <th>?</th>
             <td>Toggle this help screen</td>
           </tr>
+          <tr>
+            <th>space</th>
+            <td>Toggle animation playback</td>
+          </tr>
+          <tr>
+            <th>, / .</th>
+            <td>Jump to previous/next animation frame</td>
+          </tr>
         </tbody>
       </table>
     </HelpScreenDiv>
