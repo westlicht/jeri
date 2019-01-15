@@ -112,6 +112,8 @@ export function loadLdr(url: string): Promise<LdrImage> {
     console.time(`Downloading '${url}'`); // tslint:disable-line
     return new Promise((resolve, reject) => {
         const image = new Image();
+        image.src = url;
+        image.crossOrigin = 'anonymous';
         image.onerror = (error) => reject(new Error(`Failed to load '${url}'.`));
         image.onload = () => {
             console.timeEnd(`Downloading '${url}'`); // tslint:disable-line
@@ -137,7 +139,6 @@ export function loadLdr(url: string): Promise<LdrImage> {
                 reject(new Error(`Failed to load image '${url}': ${error}`));
             }
         };
-        image.src = url;
     });
 }
 
