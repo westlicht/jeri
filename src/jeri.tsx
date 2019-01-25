@@ -23,16 +23,20 @@ export {
 export function renderViewer(
         elem: HTMLElement,
         data: InputTree,
-        baseUrl: string = ''
+        baseUrl: string = '',
+        sortMenu: boolean = false,
+        removeCommonPrefix: boolean = false,
+        clearColor: number[] = [0.25, 0.25, 0.25],
+        framerates: number[] = [1,2,5,10,15,24,30,48,60,90,120]
 ) {
     const component = (
         <ImageViewer
             data={data}
             baseUrl={baseUrl}
-            sortMenu={false}
-            removeCommonPrefix={false}
-            clearColor={[]}
-            framerates={[]}
+            sortMenu={sortMenu}
+            removeCommonPrefix={removeCommonPrefix}
+            clearColor={clearColor}
+            framerates={framerates}
         />
     );
     return ReactDOM.render(component, elem);

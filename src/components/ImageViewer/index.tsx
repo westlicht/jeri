@@ -51,8 +51,8 @@ export interface InputLeafLossMap {
 export interface ImageViewerState {
   activeRow: number;             /** The number of the row that is currently active for keyboard toggling */
   selection: string[];           /** List of item titles that are selected */
-  viewTransform: {[tonemapGroup: string]: number}; /** Image view transform, a number between 0 and 1 for each tonemapGroup (string) */
-  exposure: {[tonemapGroup: string]: number}; /** Image exposure, a number > 0 for each tonemapGroup (string) */
+  viewTransform: { [tonemapGroup: string]: number }; /** Image view transform, a number between 0 and 1 for each tonemapGroup (string) */
+  exposure: { [tonemapGroup: string]: number }; /** Image exposure, a number > 0 for each tonemapGroup (string) */
   helpIsOpen: boolean;           /** Whether the help screen overlay is currently open */
   defaultTransformation: Matrix4x4;
   transformationNeedsUpdate: boolean;
@@ -65,10 +65,10 @@ export interface ImageViewerState {
 export interface ImageViewerProps {
   data: InputTree;             /** Unsorted input tree, use the sorted this.menuData instead */
   baseUrl: string;             /** Prefix for all images */
-  sortMenu: boolean;           /** Whether to sort the menu-items automatically */
-  removeCommonPrefix: boolean; /** Should common prefices of menu names be shortened. */
-  clearColor: number[];        /** Color of the background */
-  framerates: number[];
+  sortMenu?: boolean;           /** Whether to sort the menu-items automatically */
+  removeCommonPrefix?: boolean; /** Should common prefices of menu names be shortened. */
+  clearColor?: number[];        /** Color of the background */
+  framerates?: number[];
 }
 
 // A little hack to allow detecting shift click
@@ -85,12 +85,12 @@ document.addEventListener('keyup', (ev) => {
 });
 
 export default class ImageViewer extends React.Component<ImageViewerProps, ImageViewerState> {
-
-  static defaultProps = {
+  public static defaultProps: Partial<ImageViewerProps> = {
     baseUrl: '',
     sortMenu: false,
     removeCommonPrefix: false,
-    framerates: [1,2,5,10,15,24,30,48,60,90,120],
+    clearColor: [0.25, 0.25, 0.25],
+    framerates: [1, 2, 5, 10, 15, 24, 30, 48, 60, 90, 120],
   };
 
   /** A sorted version of props.data, cached for efficiency and recomputed when props change */
@@ -165,21 +165,21 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
     return (
       <MainDiv ref={(div: HTMLDivElement) => this.mainContainer = div} className="jeri-main">
         <div>
-        {rows.map((row, i)  => (
-          <NavRow
-            key={row.title}
-            row={row}
-            selection={this.state.selection[i]}
-            handleClick={this.navigateTo.bind(this, rows, i)}
-            removeCommonPrefix={this.props.removeCommonPrefix}
-            active={this.state.activeRow === i}
-          />
-        ))}
+          {rows.map((row, i) => (
+            <NavRow
+              key={row.title}
+              row={row}
+              selection={this.state.selection[i]}
+              handleClick={this.navigateTo.bind(this, rows, i)}
+              removeCommonPrefix={this.props.removeCommonPrefix ? this.props.removeCommonPrefix : false}
+              active={this.state.activeRow === i}
+            />
+          ))}
         </div>
         <ImageArea className="jeri-image-area">
           <ImageFrameWithLoading
             viewTransform={this.state.viewTransform[imageSpec.tonemapGroup]}
-            clearColor={this.props.clearColor}
+            clearColor={this.props.clearColor ? this.props.clearColor : [0, 0, 0]}
             exposure={this.state.exposure[imageSpec.tonemapGroup] || 1.0}
             gamma={1.0}
             offset={0.0}
@@ -371,15 +371,18 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
     }
   }
 
-  private advanceAnimationFrame(currentPos : number): void {
+  private advanceAnimationFrame(currentPos: number): void {
     if (this.state.isPlaying) {
       const pos = this.state.playbackPosition;
       // This condition prevents multiple timers advancing the position
       if (currentPos === pos) {
-        const delay = 1.0 / this.props.framerates[this.state.framerateIndex] * 1000;
+        let delay = 1.0 / 30.0;
+        if (this.props.framerates) {
+          delay = 1.0 / this.props.framerates[this.state.framerateIndex] * 1000;
+        }
         const advanceF = this.advanceAnimationFrame.bind(this);
-        setTimeout(advanceF, delay, pos+1);
-        this.setState({playbackPosition : pos+1});
+        setTimeout(advanceF, delay, pos + 1);
+        this.setState({ playbackPosition: pos + 1 });
       }
     }
   }
@@ -387,8 +390,8 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
   private keyboardHandler(event: KeyboardEvent) {
     const { key } = event;
 
-    const actions: {[x: string]: Function} = {};
-    const actionsUnderShift: {[x: string]: Function} = {};
+    const actions: { [x: string]: Function } = {};
+    const actionsUnderShift: { [x: string]: Function } = {};
 
     // Number keys
     const goToNumber = (i: number) => () => {
@@ -481,33 +484,37 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
 
     actions[' '] = () => {
       const isPlaying = !this.state.isPlaying;
-      this.setState({isPlaying : isPlaying});
+      this.setState({ isPlaying: isPlaying });
       this.advanceAnimationFrame(this.state.playbackPosition);
     }
 
     actions['<'] = () => {
-      const newIndex = this.state.framerateIndex-1 > 0 ?
-                        this.state.framerateIndex-1 : 0;
-      console.log('Framerate:', this.props.framerates[newIndex]);
-      this.setState({framerateIndex: newIndex});
+      if (this.props.framerates) {
+        const newIndex = this.state.framerateIndex - 1 > 0 ?
+          this.state.framerateIndex - 1 : 0;
+        console.log('Framerate:', this.props.framerates[newIndex]);
+        this.setState({ framerateIndex: newIndex });
+      }
     }
     actions['>'] = () => {
-      const newIndex = this.state.framerateIndex+1 < this.props.framerates.length ?
-                        this.state.framerateIndex+1 : this.state.framerateIndex;
-      console.log('Framerate:', this.props.framerates[newIndex]);
-      this.setState({framerateIndex: newIndex});
+      if (this.props.framerates) {
+        const newIndex = this.state.framerateIndex + 1 < this.props.framerates.length ?
+          this.state.framerateIndex + 1 : this.state.framerateIndex;
+        console.log('Framerate:', this.props.framerates[newIndex]);
+        this.setState({ framerateIndex: newIndex });
+      }
     }
 
     actions[','] = () => {
       this.setState({
-        isPlaying : false,
-        playbackPosition : this.state.playbackPosition - 1
+        isPlaying: false,
+        playbackPosition: this.state.playbackPosition - 1
       });
     }
     actions['.'] = () => {
       this.setState({
-        isPlaying : false,
-        playbackPosition : this.state.playbackPosition + 1
+        isPlaying: false,
+        playbackPosition: this.state.playbackPosition + 1
       });
     }
 
