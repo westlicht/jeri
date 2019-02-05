@@ -14,26 +14,32 @@ const config = {
     umdNamedDefine: true,
     publicPath: '/',
   },
+  optimization: {
+    minimize: true
+  },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.json']
   },
   module: {
-    loaders: [
+    rules: [
       {
         enforce: "pre",
         test: /\.js$/,
         loader: "source-map-loader"
       }
-    ]
+    ],
+    defaultRules: [
+      {
+        type: 'javascript/auto',
+        resolve: {}
+      },
+      {
+        test: /\.json$/i,
+        type: 'json'
+      }]
   },
   devtool: "source-map",
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      minimize: true,
-      sourceMap: true,
-      include: /\.min\.js$/,
-    }),
-  ],
+  plugins: [],
   externals: {
     react: {
       root: 'React',
