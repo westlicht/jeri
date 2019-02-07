@@ -86,7 +86,7 @@ export const NavRow = ({ row, active, selection, handleClick, removeCommonPrefix
           onClick={() => handleClick(child.title)}
           key={child.title}
           active={child.title === selection}
-          className={child.title === selection ? "jeri-nav-link selected" : "jeri-nav-link"}
+          className={child.title === selection ? 'jeri-nav-link selected' : 'jeri-nav-link'}
         >
           {i === 0 ? titlesInRow[i] : trimmedTitles[i]}
           {active && i < 10 ? <NavLinkNumber className="jeri-nav-link-number">{(i + 1) % 10}</NavLinkNumber> : null}

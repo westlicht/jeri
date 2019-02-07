@@ -486,7 +486,7 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
       const isPlaying = !this.state.isPlaying;
       this.setState({ isPlaying: isPlaying });
       this.advanceAnimationFrame(this.state.playbackPosition);
-    }
+    };
 
     actions['<'] = () => {
       if (this.props.framerates) {
@@ -495,7 +495,8 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
         console.log('Framerate:', this.props.framerates[newIndex]);
         this.setState({ framerateIndex: newIndex });
       }
-    }
+    };
+
     actions['>'] = () => {
       if (this.props.framerates) {
         const newIndex = this.state.framerateIndex + 1 < this.props.framerates.length ?
@@ -503,20 +504,21 @@ export default class ImageViewer extends React.Component<ImageViewerProps, Image
         console.log('Framerate:', this.props.framerates[newIndex]);
         this.setState({ framerateIndex: newIndex });
       }
-    }
+    };
 
     actions[','] = () => {
       this.setState({
         isPlaying: false,
         playbackPosition: this.state.playbackPosition - 1
       });
-    }
+    };
+
     actions['.'] = () => {
       this.setState({
         isPlaying: false,
         playbackPosition: this.state.playbackPosition + 1
       });
-    }
+    };
 
     if (actions.hasOwnProperty(key) && !event.metaKey && !event.altKey && !event.ctrlKey) {
       event.preventDefault();

@@ -27,7 +27,7 @@ export function renderViewer(
         sortMenu: boolean = false,
         removeCommonPrefix: boolean = false,
         clearColor: number[] = [0.25, 0.25, 0.25],
-        framerates: number[] = [1,2,5,10,15,24,30,48,60,90,120]
+        framerates: number[] = [1, 2, 5, 10, 15, 24, 30, 48, 60, 90, 120]
 ) {
     const component = (
         <ImageViewer
