@@ -66,7 +66,6 @@ export interface ImageViewerProps {
   removeCommonPrefix: boolean; /** Should common prefices of menu names be shortened. */
 }
 
-
 // A little hack to allow detecting shift click
 let SHIFT_IS_DOWN: boolean = false;
 document.addEventListener('keydown', (ev) => {

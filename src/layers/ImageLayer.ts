@@ -238,7 +238,7 @@ export interface TonemappingSettings {
   gamma: number;
   exposure: number;
 }
-const defaultTonemapping: TonemappingSettings = { viewTransform:0.0, exposure: 1.0, gamma: 1.0, offset: 0.0 };
+const defaultTonemapping: TonemappingSettings = { viewTransform: 0.0, exposure: 1.0, gamma: 1.0, offset: 0.0 };
 
 export type TextureCache = (image: Image) => WebGLTexture;
 
