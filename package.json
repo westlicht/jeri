@@ -12,8 +12,8 @@
   ],
   "description": "JavaScript Extended-Range Image viewer",
   "dependencies": {
-    "@types/react": "^16.8.2",
-    "@types/react-dom": "^16.8.0",
+    "@types/react": ">=16.0.0",
+    "@types/react-dom": ">=16.0.0",
     "@types/styled-components": "^4.1.8",
     "common-prefix": "1.1.0",
     "normalize-wheel": "1.0.1",
@@ -33,8 +33,8 @@
     "worker-loader": "^2.0.0"
   },
   "peerDependencies": {
-    "react": "^16.0.0",
-    "react-dom": "^16.0.0"
+    "react": ">=16.0.0",
+    "react-dom": ">=16.0.0"
   },
   "scripts": {
     "build": "npm run build-npm && npm run build-web",
