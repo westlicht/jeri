@@ -1,4 +1,4 @@
 [submodule "openexr-wrap-em"]
 	path = openexr-wrap-em
-	url = ../openexr-wrap-em.git
+	url = https://github.com/disneyresearch/openexr-wrap-em.git
 	branch = master
