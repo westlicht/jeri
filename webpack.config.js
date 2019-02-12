@@ -26,10 +26,6 @@ const config = {
         enforce: "pre",
         test: /\.js$/,
         loader: "source-map-loader"
-      },
-      {
-        test: /\.worker\.js$/,
-        use: { loader: 'worker-loader' }
       }
     ],
     defaultRules: [
