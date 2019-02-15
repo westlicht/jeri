@@ -18,7 +18,7 @@ export interface LdrImage {
     data: HTMLImageElement;
 }
 
-import ExrParserWorker = require('worker-loader?name=exr.worker.js!./exr-parser.worker.js');
+import ExrParserWorker = require('worker-loader!./exr-parser.worker.js');
 
 /**
  * A pool of exr parsing webworkers that get assigned tasks in a round-robin fashion.
